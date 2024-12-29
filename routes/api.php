@@ -15,6 +15,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/by-reference/{reference}', [ProductController::class, 'getProductByReference'])
             ->where('reference', '[A-Za-z]+');
         Route::post('/', [ProductController::class, 'store']);
+        Route::post('/{productId}/images', [ProductController::class, 'saveImages']);
     });
     Route::prefix('product-variants')->group(function () {
         Route::post('/', [ProductVariantsController::class, 'store']);
