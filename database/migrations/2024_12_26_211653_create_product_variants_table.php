@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('size')->unique();
             $table->string('color');
             $table->decimal('price', 8, 2);
+            $table->integer('quantity');
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->unique(['size', 'color']);
             $table->timestamps();

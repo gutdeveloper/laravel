@@ -8,8 +8,14 @@ use Illuminate\Database\Eloquent\Builder;
 class Product extends Model
 {
     protected $table = 'products';
+    protected $fillable = [
+        'name',
+        'reference',
+        'description',
+        'active',
+    ];
 
-    public static function booted(): void
+    public static function booted()
     {
         static::addGlobalScope('quantity', function (Builder $builder) {
             $builder->where('quantity', '>', 0);

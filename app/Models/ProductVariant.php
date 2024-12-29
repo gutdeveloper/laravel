@@ -8,11 +8,17 @@ use Illuminate\Database\Eloquent\Builder;
 class ProductVariant extends Model
 {
     protected $table = 'product_variants';
+    protected $fillable = [
+        'size',
+        'color',
+        'price',
+        'quantity',
+        'sku',
+        'product_id',
+    ];
 
-    protected static function boot()
+    protected static function booted()
     {
-        parent::boot();
-
         static::addGlobalScope('quantity', function (Builder $builder) {
             $builder->where('quantity', '>', 0)
                 ->where('active', 1)
