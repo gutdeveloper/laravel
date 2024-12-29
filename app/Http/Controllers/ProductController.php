@@ -5,10 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\NotFoundException;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Storage;
-use App\Models\ProductImage;
 use App\Services\ImageService;
 use App\Services\ProductService;
 
@@ -69,7 +66,6 @@ class ProductController extends Controller
         $product = $this->product->withoutGlobalScope('quantity')->find($productId);
         if (!$product) {
             throw new NotFoundException('Product not found');
-            return response()->json(['message' => 'Product not found'], 404);
         }
         $images = $request->file('images');
         $imageUrls = $this->imageService->storeMultiple($images, 'products');
