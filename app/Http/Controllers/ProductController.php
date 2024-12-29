@@ -2,20 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\NotFoundException;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use App\Models\ProductImage;
+use App\Services\ImageService;
+use App\Services\ProductService;
 
 class ProductController extends Controller
 {
-    private $product;
+    private $product, $imageService, $productService;
     public function __construct(
-        Product $product
+        Product $product,
+        ImageService $imageService,
+        ProductService $productService
     ) {
         $this->product = $product;
+        $this->imageService = $imageService;
+        $this->productService = $productService;
     }
 
     public function get()
@@ -60,22 +67,14 @@ class ProductController extends Controller
             return response()->json($validator->errors(), 400);
         }
         $product = $this->product->withoutGlobalScope('quantity')->find($productId);
-        $images = $request->file('images');
-        $imageUrls = [];
-
-        foreach ($images as $image) {
-            $path = $image->store('products', 's3');
-            $imageUrls[] = $path;
+        if (!$product) {
+            throw new NotFoundException('Product not found');
+            return response()->json(['message' => 'Product not found'], 404);
         }
+        $images = $request->file('images');
+        $imageUrls = $this->imageService->storeMultiple($images, 'products');
 
-        $imageData = array_map(function ($url) use ($productId) {
-            return [
-                'url' => $url,
-                'product_id' => $productId,
-            ];
-        }, $imageUrls);
-
-        $product->images()->createMany($imageData);
+        $this->productService->saveImageRecords($product, $imageUrls);
 
         return response()->json(['message' => 'Images uploaded successfully']);
     }
